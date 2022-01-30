@@ -36,4 +36,3 @@ while True:
         send_message()
         break
     initial_total = current_total
-#hello world
