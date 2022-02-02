@@ -1,38 +1,29 @@
-import requests
-from datetime import datetime
-import time
-
-bot_token = 0
-chat_id = 0
-
-
-def send_message():
-    url = f'https://api.telegram.org/bot{bot_token}/SendMessage?chat_id={chat_id}&parse_mode=Markdown&text="Hello"'
-    resp = requests.get(url)
-
-
 r = requests.post('https://api-v3.neuro.net/api/v2/ext/auth', auth=("mylaw.api@gmail.com", "9XuXXHbP"))
-data_auth = r.json()
-refresh_token = data_auth["refresh_token"]
+response_json = r.json()
 
-start_time = str(datetime.now())
+url = 'https://cms-v3.neuro.net/api/v2/log/dialog'
+header = {'Authorization': "Bearer " + response_json['refresh_token'],
+          'Content-Type': 'application/json'}
+param_tuples = {'limit': 100,
+                'offset': 0,
+                'where': {
+                    'agent_uuid': "03ec4ccc-a775-4395-9abe-49cefbfac9fc",
+                    'call_uuid': [nn.env("call_uuid")],
+                    'dialog_uuid': [nn.env("dialog_uuid")],
+                    'end_date': "30-01-2022 13:14:58",
+                    'msisdn': [nn.dialog['msisdn']],
+                    'start_date': "23-01-2022 13:14:58"}}
+rr = requests.post(url, headers=header, json=param_tuples)
+rr.json()
 
-r = requests.post('https://api-v3.neuro.net/api/v2/ext/statistic/dialog-report',
-                  json={"agent_uuid": "22392c1b-48e7-488d-82c9-d3c6d1a96c75", "start": start_time,
-                        "end": str(datetime.now())}, headers={
-                        'Authorization': "Bearer " + refresh_token})
-data_dialogs = r.json()
-initial_total = data_dialogs["total"]
+nn.log("URL: ", rr.url)
+nn.log("ENCODING: ", rr.encoding)
+nn.log("STATUS_CODE: ", rr.status_code)
+nn.log("HEADERS: ", rr.headers)
+nn.log("TEXT: ", rr.text)
+nn.log("CONTENT: ", rr.content)
+nn.log("JSON: ", rr.json)
 
-while True:
-    time.sleep(900)
-    r = requests.post('https://api-v3.neuro.net/api/v2/ext/statistic/dialog-report',
-                      json={"agent_uuid": "22392c1b-48e7-488d-82c9-d3c6d1a96c75", "start": start_time,
-                            "end": str(datetime.now())}, headers={
-                            'Authorization': "Bearer " + refresh_token})
-    data_dialogs = r.json()
-    current_total = data_dialogs["total"]
-    if current_total == initial_total:
-        send_message()
-        break
-    initial_total = current_total
+nn.log("Start request: ", str(datetime.datetime.now()))
+nn.log("total_count: ", rr.json()['total_count'])
+nn.log("Finish request: ", str(datetime.datetime.now()))
