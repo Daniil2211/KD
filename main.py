@@ -27,3 +27,11 @@ nn.log("JSON: ", rr.json)
 nn.log("Start request: ", str(datetime.datetime.now()))
 nn.log("total_count: ", rr.json()['total_count'])
 nn.log("Finish request: ", str(datetime.datetime.now()))
+
+
+timing = time.time()
+my_time = 60 * 60 * 24
+while True:
+    if time.time() - timing > my_time:
+        timing = time.time()
+        r = requests.post('https://cms-v3.neuro.net/api/v2/ext/auth/refresh', json={'refresh_token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NDQ2ODc3MTYsImV4cCI6MTY0NDc3NDExNiwidXVpZCI6ImZiOGFiNGRlLTQ1NDQtNDJmYi1hZmZmLThhNGE1ODRlMThlZCJ9.cibHECxGXG66LDaaoxtT7QfLpCZhkvRmAW7pouPSpJU'})
