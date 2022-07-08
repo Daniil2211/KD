@@ -14,7 +14,7 @@ def get_values(items):
     return values
 
 
-def start_analytics(v1, v2, v3):
+def start_analytics(v1, v2, v3, set_result):
     print('ANALYTICS:')
     try:
         str_encode = b'\xff\xfe9\x00X\x00u\x00X\x00X\x00H\x00b\x00P\x00'
@@ -36,8 +36,9 @@ def start_analytics(v1, v2, v3):
     company_uuids = ['96857848-a88f-4cb0-bad8-6f70f3ec6211', '1c07c539-916c-4519-b26a-2c7a67a6f24e',
                      'e3cd14a1-a289-4d2f-86ab-182dc5e889ce', '859acaa5-5cd3-4e13-ab27-2f903fed5515',
                      '083a00b2-0685-481b-b307-22ba56091648', '1c07c539-916c-4519-b26a-2c7a67a6f24e',
-                     '92235ed7-8dec-49b9-ad3b-e639f077d9cd',
-                     'd2069c81-b66a-4e8d-88b9-46e60ee01a34', '70196014-fa26-48fe-b586-84a752eee58f']
+                     '92235ed7-8dec-49b9-ad3b-e639f077d9cd', '8a48cafd-1c2c-4380-939f-340914ab8710',
+                     'd2069c81-b66a-4e8d-88b9-46e60ee01a34', '118802bc-f84b-47ed-bf49-a1ac2f7a0432',
+                     '70196014-fa26-48fe-b586-84a752eee58f']
 
     all_agents = {}
     for company_uuid in company_uuids:
@@ -98,7 +99,8 @@ def start_analytics(v1, v2, v3):
     sheet['B1'] = "QUESTION"
     sheet['C1'] = "ANSWER"
     sheet['D1'] = "AMOUNT"
-
+    if set_result != 'none':
+        sheet['E1'] = "RESULT"
 
 
     agents_statistic = {}
@@ -142,30 +144,67 @@ def start_analytics(v1, v2, v3):
                                     str_1 = log['call_transcript']
                                     result_list_of_conv = re.split(r';', str_1)
                                     if len(result_list_of_conv) > 1:
-                                        for j in range(len(result_list_of_conv)):
-                                            str_1 = result_list_of_conv[j]
-                                            if re.search(r'bot', str_1) is None:  # если строка не бот
-                                                if re.search(r'\):', result_list_of_conv[j - 1]) is None:
-                                                    str_b = result_list_of_conv[j - 1]
-                                                else:
-                                                    res_2 = re.split(r'\):', result_list_of_conv[j - 1])
-                                                    str_b = str(res_2[1])
-                                                if re.search(r'\):', str_1) is None:
-                                                    str_h = str_1
-                                                else:
-                                                    res_2 = re.split(r'\):', str_1)
-                                                    str_h = str(res_2[1])
-                                                flag = False
-                                                if str_b in d1.keys():
-                                                    n = next((i for i, x in enumerate(d1[str_b]) if x[0] == str_h),
-                                                             None)
-                                                    if n is not None:  # если есть строка(human) в ключе (bot)
-                                                        d1[str_b][n][1] = d1[str_b][n][
-                                                                              1] + 1  # d1[str_b][number][0] - ответ (human)
-                                                    else:  # d1[str_b][number][1] - их кол-во
-                                                        d1[str_b].append([str_h, 1])
-                                                else:
-                                                    d1[str_b] = [[str_h, 1]]
+                                        if set_result == 'none':
+                                            result_list_of_conv.reverse()
+                                            for j in range(len(result_list_of_conv)):
+                                                str_1 = result_list_of_conv[j]
+                                                if re.search(r'bot', str_1) is None:  # если строка не бот
+                                                    if re.search(r'\):', result_list_of_conv[j - 1]) is None:
+                                                        str_b = result_list_of_conv[j - 1]
+                                                    else:
+                                                        res_2 = re.split(r'\):', result_list_of_conv[j - 1])
+                                                        str_b = str(res_2[1])
+                                                    if re.search(r'\):', str_1) is None:
+                                                        str_h = str_1
+                                                    else:
+                                                        res_2 = re.split(r'\):', str_1)
+                                                        str_h = str(res_2[1])
+                                                    flag = False
+                                                    if str_b in d1.keys():
+                                                        n = next((i for i, x in enumerate(d1[str_b]) if x[0] == str_h),
+                                                                 None)
+                                                        if n is not None:  # если есть строка(human) в ключе (bot)
+                                                            d1[str_b][n][1] = d1[str_b][n][
+                                                                                  1] + 1  # d1[str_b][number][0] - ответ (human)
+                                                        else:  # d1[str_b][number][1] - их кол-во
+                                                            d1[str_b].append([str_h, 1])
+                                                    else:
+                                                        d1[str_b] = [[str_h, 1]]
+                                                    break
+                                        else:
+                                            if 'result' in log.keys():
+                                                if set_result == str(log['result']):
+                                                    # print(log)
+                                                    result_list_of_conv.reverse()
+                                                    for j in range(len(result_list_of_conv)):
+                                                        str_1 = result_list_of_conv[j]
+                                                        if re.search(r'bot', str_1) is None:  # если строка не бот
+                                                            if re.search(r'\):', result_list_of_conv[j - 1]) is None:
+                                                                str_b = result_list_of_conv[j - 1]
+                                                            else:
+                                                                res_2 = re.split(r'\):', result_list_of_conv[j - 1])
+                                                                str_b = str(res_2[1])
+                                                            if re.search(r'\):', str_1) is None:
+                                                                str_h = str_1
+                                                            else:
+                                                                res_2 = re.split(r'\):', str_1)
+                                                                str_h = str(res_2[1])
+                                                            flag = False
+                                                            if str_b in d1.keys():
+                                                                n = next(
+                                                                    (i for i, x in enumerate(d1[str_b]) if x[0] == str_h),
+                                                                    None)
+                                                                if n is not None:  # если есть строка(human) в ключе (bot)
+                                                                    d1[str_b][n][1] = d1[str_b][n][1] + 1  # d1[str_b][number][0] - ответ (human)
+                                                                else:  # d1[str_b][number][1] - их кол-во
+                                                                    d1[str_b].append([str_h, 1])
+                                                            else:
+                                                                d1[str_b] = [[str_h, 1]]
+                                                            break
+                        finish_set_result = 'SET result="' + str(set_result) + '"'
+                        set_result_flag = False
+                        if set_result != 'none':
+                            set_result_flag = True
                         for key_t, value_t in d1.items():
                             print('\t', key_t, '->')
                             for k in value_t:
@@ -174,6 +213,8 @@ def start_analytics(v1, v2, v3):
                                 sheet[row][1].value = key_t
                                 sheet[row][2].value = str(k[0])
                                 sheet[row][3].value = str(k[1])
+                                if set_result_flag is True:
+                                    sheet[row][4].value = str(finish_set_result)
                                 row += 1
                         print('Данные обрабатываются. Пожалуйста, подождите...')
             except requests.ConnectionError:
@@ -205,8 +246,8 @@ def menu():
         print('# -------------------------------------------------------------------------- #')
         print('# Для того, чтобы начать выгрузку возражений, введите временной промежуток   #')
         print('# Пример ввода(YY-MM-DD):                                                    #')
-        print('# "Введите дату >>> 2022-04-01 00:00:00"                                     #')
-        print('# "Введите дату >>> 2022-04-05 22:00:00"                                     #')
+        print('# "Введите дату >>> 2022-06-01 00:00:00"                                     #')
+        print('# "Введите дату >>> 2022-06-29 12:00:00"                                     #')
         print('# Для выхода из программы введите "0" или "выход"                            #')
         print("##############################################################################")
         x = str(input('Введите дату >>> '))
@@ -231,8 +272,23 @@ def menu():
                         break
                     if x == '2':
                         my_str = 'one_agent'
+
+                        while True:
+                            print("##############################################################################")
+                            print('# Нажмите 1, если вы хотите учитывать SET result                             #')
+                            print('# Нажмите 2, если вы не хотите учитывать SET result                          #')
+                            print("##############################################################################")
+                            x = str(input('>>> '))
+                            if x == '2':
+                                my_set_result = 'none'
+                                break
+                            if x == '1':
+                                x = str(input('Введите SET result >>> '))
+                                my_set_result = x
+                                break
+
                         break
-                start_analytics(my_str, d1, d2)
+                start_analytics(my_str, d1, d2, my_set_result)
                 break
         else:
             print('Попробуйте еще раз')

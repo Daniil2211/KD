@@ -79,7 +79,7 @@ def main_online():
             nn.log('Использованы все попытки перезвонов')
             nn.dump()
 
-            nn.dialog.result = nn.RESULT_DONE
+            nn.dialog.result_list_of_conv = nn.RESULT_DONE
             return
         attempt = attempt + 1
         nn.env('attempt', attempt)
@@ -5764,7 +5764,7 @@ def after_call_fail():
         nn.log('Использованы все попытки перезвонов')
         nn.dump()
         nulify_global_variables()
-        nn.dialog.result = nn.RESULT_DONE
+        nn.dialog.result_list_of_conv = nn.RESULT_DONE
         return
     nn.log('attempt', attempt)
 
@@ -5808,7 +5808,7 @@ def after_call_success():
         nn.log('Ипользованы все попытки перезвонов')
         nn.dump()
         nulify_global_variables()
-        nn.dialog.result = nn.RESULT_DONE
+        nn.dialog.result_list_of_conv = nn.RESULT_DONE
         return
     nn.log('attempt', attempt)
     if nn.env('recall_is_needed') == 'true':
@@ -5841,5 +5841,5 @@ def after_call_success():
 
     nn.dump()
     nulify_global_variables()
-    nn.dialog.result = nn.RESULT_DONE
+    nn.dialog.result_list_of_conv = nn.RESULT_DONE
     return
